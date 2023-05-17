@@ -12,27 +12,59 @@ endif
 
 all: build run
 
-build:
+build-php_ext_rs:
 	@echo "Building php_ext_rs..."
 	@cd php_ext_rs && cargo build --release
+
+build-phper:
 	@echo "Building phper..."
 	@cd phper && cargo build --release
 
-clean:
+build-phper_hook_ast_process:
+	@echo "Building phper_hook_ast_process..."
+	@cd phper_hook_ast_process && cargo build --release
+
+build: build-php_ext_rs build-phper build-phper_hook_ast_process
+
+clean-php_ext_rs:
 	@echo "Cleaning php_ext_rs..."
 	@cd php_ext_rs && cargo clean
+
+clean-phper:
 	@echo "Cleaning phper..."
 	@cd phper && cargo clean
 
-run:
+clean-phper_hook_ast_process:
+	@echo "Cleaning phper_hook_ast_process..."
+	@cd phper_hook_ast_process && cargo clean
+
+clean: clean-php_ext_rs clean-phper clean-phper_hook_ast_process
+
+run-php_ext_rs:
 ifeq ($(number),)
 	@echo "Please provide a value for the 'number' variable. Example: make run number=20"
 else
 	@echo "Running php_ext_rs 👉 libfibonacci.$(LIB_EXT)..."
 	@time php -d "extension=php_ext_rs/target/release/libfibonacci.$(LIB_EXT)" -r "fibonacci($(number));"
+endif
+
+run-phper:
+ifeq ($(number),)
+	@echo "Please provide a value for the 'number' variable. Example: make run number=20"
+else
 	@echo "Running phper 👉 libfibonacci.$(LIB_EXT)..."
 	@time php -d "extension=phper/target/release/libfibonacci.$(LIB_EXT)" -r "fibonacci($(number));"
 endif
+
+run-phper_hook_ast_process:
+ifeq ($(number),)
+	@echo "Please provide a value for the 'number' variable. Example: make run number=20"
+else
+	@echo "Running phper_hook_ast_process 👉 libfibonacci.$(LIB_EXT)..."
+	@time php -d "extension=phper_hook_ast_process/target/release/libfibonacci.$(LIB_EXT)" -r "fibonacci($(number));"
+endif
+
+run: run-php_ext_rs run-phper run-phper_hook_ast_process
 
 docker-build:
 	@docker build -t php_extensions .
